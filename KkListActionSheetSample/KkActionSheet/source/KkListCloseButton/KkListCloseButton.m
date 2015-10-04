@@ -26,27 +26,39 @@
     // Drawing code
     
     // Instance BezierPath
-    UIBezierPath *firstLine = [UIBezierPath bezierPath];
-//    UIBezierPath *secondLine = [UIBezierPath bezierPath];
+    UIBezierPath *bezierLine = [UIBezierPath bezierPath];
     
     // Instance BezierPoint
     CGRect myFrame = self.frame;
-    CGPoint leftPoint = CGPointMake(myFrame.size.width /  2 - 50, 0);
-    CGPoint centerPoint = CGPointMake(myFrame.size.width / 2, myFrame.size.height - 5);
-    CGPoint rightPoint = CGPointMake(myFrame.size.width / 2 + 50, 0);
+    CGSize display = [[UIScreen mainScreen] bounds].size;
+    CGFloat correctionY = display.width > display.height ? display.width * 0.01 : display.height * 0.04;
+    CGPoint leftPoint = CGPointMake(myFrame.size.width /  2 - 15, 15);
+    CGPoint centerPoint = CGPointMake(myFrame.size.width / 2, myFrame.size.height - correctionY);
+    CGPoint rightPoint = CGPointMake(myFrame.size.width / 2 + 15, 15);
 
     // write stroke
-    firstLine.lineWidth = 3.0f;
-    firstLine.lineCapStyle = kCGLineCapRound;
-    firstLine.lineJoinStyle = kCGLineJoinRound;
-    [firstLine moveToPoint:leftPoint];
-    [firstLine addLineToPoint:centerPoint];
-    [firstLine addLineToPoint:rightPoint];
-    [firstLine stroke];
+    [[UIColor lightGrayColor] setStroke];
     
-//    secondLine.lineWidth = 3.0f;
-//    secondLine.lineCapStyle = kCGLineCapRound;
-//    secondLine.lineJoinStyle = kCGLineJoinRound;
+    bezierLine.lineWidth = 6.0f;
+    bezierLine.lineCapStyle = kCGLineCapRound;
+    bezierLine.lineJoinStyle = kCGLineJoinRound;
+    [bezierLine moveToPoint:leftPoint];
+    [bezierLine addLineToPoint:centerPoint];
+    [bezierLine addLineToPoint:rightPoint];
+    [bezierLine stroke];
+    
 }
+
+//- (void) changeOrientationTransform: (NSString *) orientarion {
+//    if (!animatingFlg) {
+//        [UIView animateWithDuration:.5f
+//                              delay:0
+//                            options:UIViewAnimationOptionCurveEaseInOut
+//                         animations:^{
+//                             displaysize.size = [[UIScreen mainScreen] bounds].size;
+//                         }
+//                         completion:^(BOOL finished) {animatingFlg = NO;}];
+//    }
+//}
 
 @end

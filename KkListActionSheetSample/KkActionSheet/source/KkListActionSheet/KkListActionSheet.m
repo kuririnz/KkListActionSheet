@@ -7,6 +7,7 @@
 //
 
 #import "KkListActionSheet.h"
+#import "KkListCloseButton.h"
 
 #define ANIM_ALPHA_KEY      @"animAlpha"
 #define ANIM_MOVE_KEY       @"animMove"
@@ -17,7 +18,7 @@
     IBOutlet UIView *kkActionSheetBackGround;
     IBOutlet UIView *kkActionSheet;
     IBOutlet UILabel *titleLabel;
-    IBOutlet UIButton *kkCloseButton;
+    IBOutlet KkListCloseButton *kkCloseButton;
     
     CGRect displaysize;
     CGFloat centerY;
@@ -73,29 +74,38 @@
     // Setting CloseButton Layout
     kkCloseButton.translatesAutoresizingMaskIntoConstraints = YES;
     CGRect closeBtnRect = kkCloseButton.frame;
-    closeBtnRect.size.width = displaysize.size.width;
-    closeBtnRect.size.height = displaysize.size.height * 0.07;
+    closeBtnRect.size.width = displaysize.size.width > displaysize.size.height? displaysize.size.width:displaysize.size.height;
+    closeBtnRect.size.height = displaysize.size.height * 0.085;
+    CGFloat tmpX = closeBtnRect.size.width - displaysize.size.width;
+    closeBtnRect.origin = CGPointMake(tmpX > 0 ? tmpX / 2 : 0, 0);
     kkCloseButton.frame = closeBtnRect;
     
     
     centerY = kkActionSheet.center.y;
     
     // BackGround TapGesuture Event
-    UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc]
+    UITapGestureRecognizer *backGroundTapGesture = [[UITapGestureRecognizer alloc]
                                           initWithTarget:self
                                           action:@selector(onTapGesture:)];
-    [kkActionSheetBackGround addGestureRecognizer:tapGesture];
+    [kkActionSheetBackGround addGestureRecognizer:backGroundTapGesture];
 
     // Close Button PanGesture Event
     UIPanGestureRecognizer *panGesture = [[UIPanGestureRecognizer alloc]
                                           initWithTarget:self
                                           action:@selector(onPanGesture:)];
+    UITapGestureRecognizer *closeTapGesture = [[UITapGestureRecognizer alloc]
+                                                    initWithTarget:self
+                                                    action:@selector(onTapGesture:)];
+    [kkActionSheetBackGround addGestureRecognizer:backGroundTapGesture];
+
     [kkCloseButton addGestureRecognizer:panGesture];
-    
-     [[NSNotificationCenter defaultCenter] addObserver:self
-                                              selector:@selector(didRotation:)
-                                                  name:@"UIDeviceOrientationDidChangeNotification"
-                                                object:nil];
+    [kkCloseButton addGestureRecognizer:closeTapGesture];
+
+    // set device change notification center
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(didRotation:)
+                                                 name:@"UIDeviceOrientationDidChangeNotification"
+                                               object:nil];
 }
 
 - (void) setTitle:(NSString *)title {
@@ -104,11 +114,6 @@
 
 - (void) setAttrTitle:(NSAttributedString *)attrTitle {
     titleLabel.attributedText = attrTitle;
-}
-
-
-- (IBAction) closePushBtn:(UIButton *) button {
-    [self kkListActionSheetAnimation];
 }
 
 #pragma mark - Gesture Event
@@ -231,18 +236,25 @@
     }
 }
 
-- (void) changeOrientationTransform: (NSString *) orientarion {
+- (void) changeOrientationTransform: (NSString *) orientation {
     if (!animatingFlg) {
         [UIView animateWithDuration:.5f
                               delay:0
                             options:UIViewAnimationOptionCurveEaseInOut
                          animations:^{
-                             CGRect tmp = kkActionSheet.frame;
+                             CGRect afterSheetRect = kkActionSheet.frame;
+                             CGRect afterBtnRect = kkCloseButton.frame;
                              displaysize.size = [[UIScreen mainScreen] bounds].size;
-                             tmp.origin = CGPointMake(0, displaysize.size.height / 3);
-                             tmp.size.width = displaysize.size.width;
-                             tmp.size.height = (displaysize.size.height * 2) / 3;
-                             kkActionSheet.frame = tmp;
+                             
+                             afterSheetRect.origin = CGPointMake(0, displaysize.size.height / 3);
+                             afterSheetRect.size.width = displaysize.size.width;
+                             afterSheetRect.size.height = (displaysize.size.height * 2) / 3;
+                             
+                             CGFloat tmpX = afterBtnRect.size.width - displaysize.size.width;
+                             afterBtnRect.origin = CGPointMake(tmpX > 0 ? -(tmpX / 2) : 0, 0);
+
+                             kkActionSheet.frame = afterSheetRect;
+                             kkCloseButton.frame = afterBtnRect;
                              centerY = kkActionSheet.center.y;
                          }
                          completion:^(BOOL finished) {animatingFlg = NO;}];
