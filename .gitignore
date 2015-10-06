@@ -1,9 +1,8 @@
-KkListActionSheetSample/._AppDelegate.h
-KkListActionSheetSample/._AppDelegate.m
-KkListActionSheetSample/._KkListActionSheet.h
-KkListActionSheetSample/._KkListActionSheet.m
-KkListActionSheetSample/._KkListCloseButton.h
-KkListActionSheetSample/._KkListCloseButton.m
-KkListActionSheetSample/._main.m
-KkListActionSheetSample/._ViewController.h
-KkListActionSheetSample/._ViewController.m
+KkListActionSheetSample/._*.m
+KkListActionSheetSample/._*.h
+KkListActionSheetSample/KkActionSheet/source/*/._*.h
+KkListActionSheetSample/KkActionSheet/source/*/._*.m
+._*
+KkListActionSheetDemo/KkListActionSheetSample.xcworkspace
+KkListActionSheetDemo/Pods
+Podfile.lock

@@ -7,6 +7,7 @@
 //
 
 #import "KkListActionSheet.h"
+#import "KkListCloseButton.h"
 
 #define ANIM_ALPHA_KEY      @"animAlpha"
 #define ANIM_MOVE_KEY       @"animMove"
@@ -17,7 +18,7 @@
     IBOutlet UIView *kkActionSheetBackGround;
     IBOutlet UIView *kkActionSheet;
     IBOutlet UILabel *titleLabel;
-    IBOutlet UIButton *kkCloseButton;
+    IBOutlet KkListCloseButton *kkCloseButton;
     
     CGRect displaysize;
     CGFloat centerY;
@@ -49,9 +50,6 @@
     KkListActionSheet *initKkListActionSheet = [[[NSBundle mainBundle] loadNibNamed:className owner:nil options:0] firstObject];
     [parent.view addSubview:initKkListActionSheet];
     
-    initKkListActionSheet.kkTableView.delegate = parent;
-    initKkListActionSheet.kkTableView.dataSource = parent;
-    
     return initKkListActionSheet;
 }
 
@@ -61,7 +59,16 @@
     
     // Set BackGround Alpha
     kkActionSheetBackGround.alpha = 0.0f;
+    CGFloat largeOrientation = displaysize.size.width > displaysize.size.height? displaysize.size.width:displaysize.size.height;
 
+    
+    // Setting BackGround Layout
+    kkActionSheetBackGround.translatesAutoresizingMaskIntoConstraints = YES;
+    CGRect kkActionSheetBgRect = kkActionSheetBackGround.frame;
+    kkActionSheetBgRect.size.width = largeOrientation;
+    kkActionSheetBgRect.size.height = largeOrientation;
+    kkActionSheetBackGround.frame = kkActionSheetBgRect;
+    
     // Setting ListActionSheet Layout
     kkActionSheet.translatesAutoresizingMaskIntoConstraints = YES;
     CGRect kkActionSheetRect = kkActionSheet.frame;
@@ -73,29 +80,37 @@
     // Setting CloseButton Layout
     kkCloseButton.translatesAutoresizingMaskIntoConstraints = YES;
     CGRect closeBtnRect = kkCloseButton.frame;
-    closeBtnRect.size.width = displaysize.size.width;
-    closeBtnRect.size.height = displaysize.size.height * 0.07;
+    closeBtnRect.size.width = largeOrientation;
+    closeBtnRect.size.height = displaysize.size.height * 0.085;
+    CGFloat tmpX = closeBtnRect.size.width - displaysize.size.width;
+    closeBtnRect.origin = CGPointMake(tmpX > 0 ? tmpX / 2 : 0, 0);
     kkCloseButton.frame = closeBtnRect;
-    
     
     centerY = kkActionSheet.center.y;
     
     // BackGround TapGesuture Event
-    UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc]
+    UITapGestureRecognizer *backGroundTapGesture = [[UITapGestureRecognizer alloc]
                                           initWithTarget:self
                                           action:@selector(onTapGesture:)];
-    [kkActionSheetBackGround addGestureRecognizer:tapGesture];
+    [kkActionSheetBackGround addGestureRecognizer:backGroundTapGesture];
 
     // Close Button PanGesture Event
     UIPanGestureRecognizer *panGesture = [[UIPanGestureRecognizer alloc]
                                           initWithTarget:self
                                           action:@selector(onPanGesture:)];
+    UITapGestureRecognizer *closeTapGesture = [[UITapGestureRecognizer alloc]
+                                                    initWithTarget:self
+                                                    action:@selector(onTapGesture:)];
+    [kkActionSheetBackGround addGestureRecognizer:backGroundTapGesture];
+
     [kkCloseButton addGestureRecognizer:panGesture];
-    
-     [[NSNotificationCenter defaultCenter] addObserver:self
-                                              selector:@selector(didRotation:)
-                                                  name:@"UIDeviceOrientationDidChangeNotification"
-                                                object:nil];
+    [kkCloseButton addGestureRecognizer:closeTapGesture];
+
+    // set device change notification center
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(didRotation:)
+                                                 name:@"UIDeviceOrientationDidChangeNotification"
+                                               object:nil];
 }
 
 - (void) setTitle:(NSString *)title {
@@ -106,14 +121,9 @@
     titleLabel.attributedText = attrTitle;
 }
 
-
-- (IBAction) closePushBtn:(UIButton *) button {
-    [self kkListActionSheetAnimation];
-}
-
 #pragma mark - Gesture Event
 - (void) onTapGesture:(UITapGestureRecognizer *) recognizer {
-    [self kkListActionSheetAnimation];
+    [self showHide];
 }
 
 - (void) onPanGesture:(UIPanGestureRecognizer *) recognizer {
@@ -137,7 +147,7 @@
 }
 
 #pragma mark - Animation ListActionSheet
-- (void) kkListActionSheetAnimation {
+- (void) showHide {
     [self kkListActionSheetAnimation:kkActionSheet.frame.size.height];
 }
 
@@ -231,21 +241,54 @@
     }
 }
 
-- (void) changeOrientationTransform: (NSString *) orientarion {
+- (void) changeOrientationTransform: (NSString *) orientation {
     if (!animatingFlg) {
         [UIView animateWithDuration:.5f
                               delay:0
                             options:UIViewAnimationOptionCurveEaseInOut
                          animations:^{
-                             CGRect tmp = kkActionSheet.frame;
-                             displaysize.size = [[UIScreen mainScreen] bounds].size;
-                             tmp.origin = CGPointMake(0, displaysize.size.height / 3);
-                             tmp.size.width = displaysize.size.width;
-                             tmp.size.height = (displaysize.size.height * 2) / 3;
-                             kkActionSheet.frame = tmp;
+                             CGRect afterSheetRect = kkActionSheet.frame;
+                             CGRect afterBtnRect = kkCloseButton.frame;
+                             if ([[[UIDevice currentDevice] systemVersion] floatValue] < 9.0) {
+                                 displaysize.size = [[UIScreen mainScreen] bounds].size;
+                             } else {
+                                 CGSize afterSize = [[UIScreen mainScreen] bounds].size;
+                                 BOOL isLargeWidth = afterSize.width > afterSize.height;
+                                 if ([orientation isEqualToString:ORIENT_PORTRAIT]) {
+                                     displaysize.size.width = isLargeWidth ? afterSize.height : afterSize.width;
+                                     displaysize.size.height = isLargeWidth ? afterSize.width : afterSize.height;
+                                 } else if ([orientation isEqualToString:ORIENT_LANDSCAPE]) {
+                                     displaysize.size.width = isLargeWidth ? afterSize.width : afterSize.height;
+                                     displaysize.size.height = isLargeWidth ? afterSize.height : afterSize.width;
+                                 }
+                             }
+                             
+                             afterSheetRect.origin = CGPointMake(0, displaysize.size.height / 3);
+                             afterSheetRect.size.width = displaysize.size.width;
+                             afterSheetRect.size.height = (displaysize.size.height * 2) / 3;
+                             
+                             CGFloat tmpX = afterBtnRect.size.width - displaysize.size.width;
+                             afterBtnRect.origin = CGPointMake(tmpX > 0 ? -(tmpX / 2) : 0, 0);
+
+                             kkActionSheet.frame = afterSheetRect;
+                             kkCloseButton.frame = afterBtnRect;
                              centerY = kkActionSheet.center.y;
                          }
                          completion:^(BOOL finished) {animatingFlg = NO;}];
     }
+}
+
+#pragma mark - UITableViewDelegate,UITableViewDatasource
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    return [self.delegate kkTableView:tableView rowsInSection:section];
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    return [self.delegate kktableView:tableView currentIndex:indexPath];
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    [self.delegate kkTableView:tableView selectIndex:indexPath];
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
 }
 @end

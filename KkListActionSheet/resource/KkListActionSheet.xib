@@ -19,20 +19,13 @@
                     </accessibility>
                 </view>
                 <view contentMode="scaleToFill" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="lLs-5N-ajW">
-                    <rect key="frame" x="0.0" y="200" width="600" height="400"/>
+                    <rect key="frame" x="0.0" y="150" width="600" height="450"/>
                     <subviews>
-                        <button contentMode="scaleAspectFit" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="K6I-av-dGb">
-                            <rect key="frame" x="0.0" y="0.0" width="600" height="45"/>
-                            <fontDescription key="fontDescription" type="boldSystem" pointSize="27"/>
-                            <state key="normal" title="∨">
-                                <color key="titleColor" cocoaTouchSystemColor="scrollViewTexturedBackgroundColor"/>
-                                <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
-                            </state>
-                            <connections>
-                                <action selector="closePushBtn:" destination="iN0-l3-epB" eventType="touchUpInside" id="XTU-1y-amr"/>
-                            </connections>
-                        </button>
-                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="リストタイトル" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hQq-EL-Wq0">
+                        <view contentMode="scaleToFill" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="rGe-FJ-T3F" customClass="KkListCloseButton">
+                            <rect key="frame" x="0.0" y="0.0" width="600" height="16"/>
+                            <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        </view>
+                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" misplaced="YES" text="リストタイトル" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hQq-EL-Wq0">
                             <rect key="frame" x="0.0" y="53" width="600" height="21"/>
                             <fontDescription key="fontDescription" type="system" pointSize="17"/>
                             <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
@@ -41,6 +34,10 @@
                         <tableView clipsSubviews="YES" contentMode="scaleToFill" ambiguous="YES" misplaced="YES" alwaysBounceVertical="YES" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="UeJ-kt-BYf">
                             <rect key="frame" x="0.0" y="84" width="600" height="0.0"/>
                             <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                            <connections>
+                                <outlet property="dataSource" destination="iN0-l3-epB" id="nNt-Xe-dZQ"/>
+                                <outlet property="delegate" destination="iN0-l3-epB" id="KCc-V3-jPY"/>
+                            </connections>
                         </tableView>
                     </subviews>
                     <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -48,15 +45,15 @@
                         <bool key="isElement" value="YES"/>
                     </accessibility>
                     <constraints>
+                        <constraint firstAttribute="top" secondItem="rGe-FJ-T3F" secondAttribute="top" id="0I4-rT-wSF"/>
                         <constraint firstAttribute="trailing" secondItem="UeJ-kt-BYf" secondAttribute="trailing" id="4Wk-AO-qYU"/>
-                        <constraint firstAttribute="trailing" secondItem="K6I-av-dGb" secondAttribute="trailing" id="7N6-tB-F7a"/>
-                        <constraint firstAttribute="leading" secondItem="K6I-av-dGb" secondAttribute="leading" id="8n6-BB-U8I"/>
-                        <constraint firstAttribute="top" secondItem="K6I-av-dGb" secondAttribute="top" id="Ww7-sy-evK"/>
+                        <constraint firstItem="rGe-FJ-T3F" firstAttribute="bottom" secondItem="hQq-EL-Wq0" secondAttribute="top" id="CEb-AL-j3S"/>
                         <constraint firstAttribute="leading" secondItem="UeJ-kt-BYf" secondAttribute="leading" id="XkC-YL-NvM"/>
                         <constraint firstAttribute="trailing" secondItem="hQq-EL-Wq0" secondAttribute="trailing" id="eRV-35-B2J"/>
+                        <constraint firstAttribute="leading" secondItem="rGe-FJ-T3F" secondAttribute="leading" id="fuz-PP-ix6"/>
+                        <constraint firstAttribute="trailing" secondItem="rGe-FJ-T3F" secondAttribute="trailing" id="hde-Em-QQk"/>
                         <constraint firstAttribute="leading" secondItem="hQq-EL-Wq0" secondAttribute="leading" id="l4I-hT-6Xb"/>
-                        <constraint firstItem="K6I-av-dGb" firstAttribute="bottom" secondItem="hQq-EL-Wq0" secondAttribute="top" constant="-5" id="nhP-24-9HB"/>
-                        <constraint firstItem="hQq-EL-Wq0" firstAttribute="bottom" secondItem="UeJ-kt-BYf" secondAttribute="top" constant="-10" id="rL9-M7-R9c"/>
+                        <constraint firstItem="hQq-EL-Wq0" firstAttribute="bottom" secondItem="UeJ-kt-BYf" secondAttribute="top" id="rL9-M7-R9c"/>
                         <constraint firstAttribute="bottom" secondItem="UeJ-kt-BYf" secondAttribute="bottom" id="ue1-nc-0AN"/>
                     </constraints>
                 </view>
@@ -77,7 +74,7 @@
             <connections>
                 <outlet property="kkActionSheet" destination="lLs-5N-ajW" id="blg-i6-Nsa"/>
                 <outlet property="kkActionSheetBackGround" destination="59n-vX-7JZ" id="t1n-eR-zdr"/>
-                <outlet property="kkCloseButton" destination="K6I-av-dGb" id="5Hf-oN-9nI"/>
+                <outlet property="kkCloseButton" destination="rGe-FJ-T3F" id="gY9-6V-cib"/>
                 <outlet property="kkTableView" destination="UeJ-kt-BYf" id="RRi-yZ-Wqb"/>
                 <outlet property="titleLabel" destination="hQq-EL-Wq0" id="0Es-rh-EOS"/>
             </connections>

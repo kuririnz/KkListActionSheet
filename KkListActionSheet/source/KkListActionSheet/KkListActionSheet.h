@@ -12,9 +12,11 @@
 @protocol KkListActionSheetDelegate <NSObject>
 
 @required
+- (NSInteger)kkTableView:(UITableView *)tableView rowsInSection:(NSInteger)section;
+- (UITableViewCell *)kktableView:(UITableView *)tableView currentIndex:(NSIndexPath *)indexPath;
 
 @optional
-
+- (void)kkTableView:(UITableView *)tableView selectIndex:(NSIndexPath *)indexPath;
 
 @end
 
@@ -26,6 +28,6 @@
 
 +(instancetype) createInit:(UIViewController *) parent;
 -(void) setTitle:(NSString *)title;
--(void) kkListActionSheetAnimation;
+-(void) showHide;
 
 @end
