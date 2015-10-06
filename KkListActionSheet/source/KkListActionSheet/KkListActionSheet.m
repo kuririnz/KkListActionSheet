@@ -36,8 +36,6 @@
         // init process
         displaysize = [[UIScreen mainScreen] bounds];
         self.hidden = YES;
-//        self.kkTableView.delegate = self;
-//        self.kkTableView.dataSource = self;
     }
     return self;
 }
@@ -125,7 +123,7 @@
 
 #pragma mark - Gesture Event
 - (void) onTapGesture:(UITapGestureRecognizer *) recognizer {
-    [self kkListActionSheetAnimation];
+    [self showHide];
 }
 
 - (void) onPanGesture:(UIPanGestureRecognizer *) recognizer {
@@ -149,7 +147,7 @@
 }
 
 #pragma mark - Animation ListActionSheet
-- (void) kkListActionSheetAnimation {
+- (void) showHide {
     [self kkListActionSheetAnimation:kkActionSheet.frame.size.height];
 }
 
