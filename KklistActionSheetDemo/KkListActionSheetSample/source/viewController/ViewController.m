@@ -28,7 +28,7 @@
 }
 
 -(IBAction)buttonPushed:(UIButton *)sender {
-    [kkListActionSheet kkListActionSheetAnimation];
+    [kkListActionSheet showHide];
 }
 
 

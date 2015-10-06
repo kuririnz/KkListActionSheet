@@ -28,6 +28,6 @@
 
 +(instancetype) createInit:(UIViewController *) parent;
 -(void) setTitle:(NSString *)title;
--(void) kkListActionSheetAnimation;
+-(void) showHide;
 
 @end
