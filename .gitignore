@@ -3,3 +3,6 @@ KkListActionSheetSample/._*.h
 KkListActionSheetSample/KkActionSheet/source/*/._*.h
 KkListActionSheetSample/KkActionSheet/source/*/._*.m
 ._*
+KkListActionSheetDemo/KkListActionSheetSample.xcworkspace
+KkListActionSheetDemo/Pods
+Podfile.lock
