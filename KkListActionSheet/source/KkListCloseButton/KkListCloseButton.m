@@ -31,7 +31,12 @@
     // Instance BezierPoint
     CGRect myFrame = self.frame;
     CGSize display = [[UIScreen mainScreen] bounds].size;
-    CGFloat correctionY = display.width > display.height ? display.width * 0.01 : display.height * 0.04;
+    CGFloat correctionY = .0f;
+    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
+        correctionY = display.width > display.height ? display.width * 0.04 : display.height * 0.06;
+    } else {
+        correctionY = display.width > display.height ? display.width * 0.01 : display.height * 0.04;
+    }
     CGPoint leftPoint = CGPointMake(myFrame.size.width /  2 - 15, 15);
     CGPoint centerPoint = CGPointMake(myFrame.size.width / 2, myFrame.size.height - correctionY);
     CGPoint rightPoint = CGPointMake(myFrame.size.width / 2 + 15, 15);
@@ -48,17 +53,4 @@
     [bezierLine stroke];
     
 }
-
-//- (void) changeOrientationTransform: (NSString *) orientarion {
-//    if (!animatingFlg) {
-//        [UIView animateWithDuration:.5f
-//                              delay:0
-//                            options:UIViewAnimationOptionCurveEaseInOut
-//                         animations:^{
-//                             displaysize.size = [[UIScreen mainScreen] bounds].size;
-//                         }
-//                         completion:^(BOOL finished) {animatingFlg = NO;}];
-//    }
-//}
-
 @end

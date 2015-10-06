@@ -36,6 +36,8 @@
         // init process
         displaysize = [[UIScreen mainScreen] bounds];
         self.hidden = YES;
+//        self.kkTableView.delegate = self;
+//        self.kkTableView.dataSource = self;
     }
     return self;
 }
@@ -50,9 +52,6 @@
     KkListActionSheet *initKkListActionSheet = [[[NSBundle mainBundle] loadNibNamed:className owner:nil options:0] firstObject];
     [parent.view addSubview:initKkListActionSheet];
     
-    initKkListActionSheet.kkTableView.delegate = parent;
-    initKkListActionSheet.kkTableView.dataSource = parent;
-    
     return initKkListActionSheet;
 }
 
@@ -62,7 +61,16 @@
     
     // Set BackGround Alpha
     kkActionSheetBackGround.alpha = 0.0f;
+    CGFloat largeOrientation = displaysize.size.width > displaysize.size.height? displaysize.size.width:displaysize.size.height;
 
+    
+    // Setting BackGround Layout
+    kkActionSheetBackGround.translatesAutoresizingMaskIntoConstraints = YES;
+    CGRect kkActionSheetBgRect = kkActionSheetBackGround.frame;
+    kkActionSheetBgRect.size.width = largeOrientation;
+    kkActionSheetBgRect.size.height = largeOrientation;
+    kkActionSheetBackGround.frame = kkActionSheetBgRect;
+    
     // Setting ListActionSheet Layout
     kkActionSheet.translatesAutoresizingMaskIntoConstraints = YES;
     CGRect kkActionSheetRect = kkActionSheet.frame;
@@ -74,12 +82,11 @@
     // Setting CloseButton Layout
     kkCloseButton.translatesAutoresizingMaskIntoConstraints = YES;
     CGRect closeBtnRect = kkCloseButton.frame;
-    closeBtnRect.size.width = displaysize.size.width > displaysize.size.height? displaysize.size.width:displaysize.size.height;
+    closeBtnRect.size.width = largeOrientation;
     closeBtnRect.size.height = displaysize.size.height * 0.085;
     CGFloat tmpX = closeBtnRect.size.width - displaysize.size.width;
     closeBtnRect.origin = CGPointMake(tmpX > 0 ? tmpX / 2 : 0, 0);
     kkCloseButton.frame = closeBtnRect;
-    
     
     centerY = kkActionSheet.center.y;
     
@@ -244,7 +251,19 @@
                          animations:^{
                              CGRect afterSheetRect = kkActionSheet.frame;
                              CGRect afterBtnRect = kkCloseButton.frame;
-                             displaysize.size = [[UIScreen mainScreen] bounds].size;
+                             if ([[[UIDevice currentDevice] systemVersion] floatValue] < 9.0) {
+                                 displaysize.size = [[UIScreen mainScreen] bounds].size;
+                             } else {
+                                 CGSize afterSize = [[UIScreen mainScreen] bounds].size;
+                                 BOOL isLargeWidth = afterSize.width > afterSize.height;
+                                 if ([orientation isEqualToString:ORIENT_PORTRAIT]) {
+                                     displaysize.size.width = isLargeWidth ? afterSize.height : afterSize.width;
+                                     displaysize.size.height = isLargeWidth ? afterSize.width : afterSize.height;
+                                 } else if ([orientation isEqualToString:ORIENT_LANDSCAPE]) {
+                                     displaysize.size.width = isLargeWidth ? afterSize.width : afterSize.height;
+                                     displaysize.size.height = isLargeWidth ? afterSize.height : afterSize.width;
+                                 }
+                             }
                              
                              afterSheetRect.origin = CGPointMake(0, displaysize.size.height / 3);
                              afterSheetRect.size.width = displaysize.size.width;
@@ -259,5 +278,19 @@
                          }
                          completion:^(BOOL finished) {animatingFlg = NO;}];
     }
+}
+
+#pragma mark - UITableViewDelegate,UITableViewDatasource
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    return [self.delegate kkTableView:tableView rowsInSection:section];
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    return [self.delegate kktableView:tableView currentIndex:indexPath];
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    [self.delegate kkTableView:tableView selectIndex:indexPath];
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
 }
 @end

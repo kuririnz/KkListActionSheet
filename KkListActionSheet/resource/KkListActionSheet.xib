@@ -34,6 +34,10 @@
                         <tableView clipsSubviews="YES" contentMode="scaleToFill" ambiguous="YES" misplaced="YES" alwaysBounceVertical="YES" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="UeJ-kt-BYf">
                             <rect key="frame" x="0.0" y="84" width="600" height="0.0"/>
                             <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                            <connections>
+                                <outlet property="dataSource" destination="iN0-l3-epB" id="nNt-Xe-dZQ"/>
+                                <outlet property="delegate" destination="iN0-l3-epB" id="KCc-V3-jPY"/>
+                            </connections>
                         </tableView>
                     </subviews>
                     <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>

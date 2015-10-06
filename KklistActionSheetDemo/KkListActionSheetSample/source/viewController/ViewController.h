@@ -9,7 +9,7 @@
 #import <UIKit/UIKit.h>
 #import "KkListActionSheet.h"
 
-@interface ViewController : UIViewController
+@interface ViewController : UIViewController <KkListActionSheetDelegate>
 
 
 @end

@@ -32,12 +32,11 @@
 
 
 #pragma mark - UITableViewDelegate,UITableViewDatasource
-- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+- (NSInteger)kkTableView:(UITableView *)tableView rowsInSection:(NSInteger)section {
     return 15;
 }
 
-
-- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+- (UITableViewCell *)kktableView:(UITableView *)tableView currentIndex:(NSIndexPath *)indexPath {
     NSString *cellIdentifier = @"cell";
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:cellIdentifier];
     
@@ -49,7 +48,7 @@
     return cell;
 }
 
-- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+- (void) kkTableView:(UITableView *)tableView selectIndex:(NSIndexPath *)indexPath {
     NSLog(@"%ld行目をタップ", (long)indexPath.row);
 }
 
