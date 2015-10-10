@@ -8,14 +8,14 @@
 
 Pod::Spec.new do |s|
   s.name         = "KkListActionSheet"
-  s.version      = "0.0.2"
+  s.version      = "0.0.4"
   s.summary      = "First Release"
   s.homepage     = "https://github.com/kuririnz/KkListActionSheet"
   s.license      = { :type => "MIT", :file => "LICENSE" }
   s.author       = { "keisuke kuribayashi" => "montblanc.notdelicious@hotmail.com" }
   # s.platform     = :ios, "5.0"
   s.ios.deployment_target = "7.0"
-  s.source       = { :git => "https://github.com/kuririnz/KkListActionSheet.git", :tag => "0.0.2" }
+  s.source       = { :git => "https://github.com/kuririnz/KkListActionSheet.git", :tag => "0.0.4" }
   s.source_files = "KkListActionSheet/**/*.{h,m}"
   s.resource     = "KkListActionSheet/resource/*.xib"
   s.framework    = 'QuartzCore'
