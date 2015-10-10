@@ -11,8 +11,8 @@
 
 #define ANIM_ALPHA_KEY      @"animAlpha"
 #define ANIM_MOVE_KEY       @"animMove"
-#define ORIENT_PORTRAIT     @"PORTRAIT"
-#define ORIENT_LANDSCAPE    @"LANDSCAPE"
+#define ORIENT_VERTICAL     @"PORTRAIT"
+#define ORIENT_HORIZONTAL   @"LANDSCAPE"
 
 @interface KkListActionSheet (){
     IBOutlet UIView *kkActionSheetBackGround;
@@ -23,6 +23,9 @@
     CGRect displaysize;
     CGFloat centerY;
     BOOL animatingFlg;
+    
+    NSArray *orientList;
+    NSArray *supportOrientList;
 }
 @end
 
@@ -35,6 +38,15 @@
     if(self) {
         // init process
         displaysize = [[UIScreen mainScreen] bounds];
+        orientList = [NSArray arrayWithObjects:@"UIInterfaceOrientationPortrait",
+                      @"UIInterfaceOrientationPortraitUpsideDown",
+                      @"UIInterfaceOrientationLandscapeLeft",
+                      @"UIInterfaceOrientationLandscapeRight", nil];
+        if ([[UIDevice currentDevice] systemVersion].floatValue > 8.0) {
+            supportOrientList = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UISupportedInterfaceOrientations"];
+        } else {
+            supportOrientList = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"UISupportedInterfaceOrientations"];
+        }
         self.hidden = YES;
     }
     return self;
@@ -45,11 +57,10 @@
     [self initalKkListActionSheet];
 }
 
-+ (instancetype) createInit: (UIViewController *) parent{
++ (instancetype) createInit: (UIViewController *) parent {
     NSString *className = NSStringFromClass([self class]);
     KkListActionSheet *initKkListActionSheet = [[[NSBundle mainBundle] loadNibNamed:className owner:nil options:0] firstObject];
     [parent.view addSubview:initKkListActionSheet];
-    
     return initKkListActionSheet;
 }
 
@@ -107,10 +118,12 @@
     [kkCloseButton addGestureRecognizer:closeTapGesture];
 
     // set device change notification center
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(didRotation:)
-                                                 name:@"UIDeviceOrientationDidChangeNotification"
-                                               object:nil];
+    if (supportOrientList.count > 1) {
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(didRotation:)
+                                                     name:@"UIDeviceOrientationDidChangeNotification"
+                                                   object:nil];
+    }
 }
 
 - (void) setTitle:(NSString *)title {
@@ -229,15 +242,13 @@
 #pragma mark - change device rotate method
 - (void) didRotation: (NSNotification *) notification {
     UIDeviceOrientation orientation = [[notification object] orientation];
-    
-    if (orientation == UIDeviceOrientationPortrait
-        || orientation == UIDeviceOrientationPortraitUpsideDown) {
-        NSLog(@"Orientation:Portrait");
-        [self changeOrientationTransform:ORIENT_PORTRAIT];
-    } else if (orientation == UIDeviceOrientationLandscapeLeft
-               || orientation == UIDeviceOrientationLandscapeRight) {
-        NSLog(@"Orientation:Landscape");
-        [self changeOrientationTransform:ORIENT_LANDSCAPE];
+    if (orientation < UIDeviceOrientationPortrait || orientation > UIDeviceOrientationLandscapeRight) return;
+    if (orientation == UIDeviceOrientationPortrait || orientation== UIDeviceOrientationPortraitUpsideDown) {
+        NSString *nowRotate = [orientList objectAtIndex:orientation - 1];
+        if ([supportOrientList indexOfObject:nowRotate] != NSNotFound) [self changeOrientationTransform:ORIENT_VERTICAL];
+    } else if (orientation == UIDeviceOrientationLandscapeLeft || orientation== UIDeviceOrientationLandscapeRight) {
+        NSString *nowRotate = [orientList objectAtIndex:orientation - 1];
+        if ([supportOrientList indexOfObject:nowRotate] != NSNotFound) [self changeOrientationTransform:ORIENT_HORIZONTAL];
     }
 }
 
@@ -254,10 +265,10 @@
                              } else {
                                  CGSize afterSize = [[UIScreen mainScreen] bounds].size;
                                  BOOL isLargeWidth = afterSize.width > afterSize.height;
-                                 if ([orientation isEqualToString:ORIENT_PORTRAIT]) {
+                                 if ([orientation isEqualToString:ORIENT_VERTICAL]) {
                                      displaysize.size.width = isLargeWidth ? afterSize.height : afterSize.width;
                                      displaysize.size.height = isLargeWidth ? afterSize.width : afterSize.height;
-                                 } else if ([orientation isEqualToString:ORIENT_LANDSCAPE]) {
+                                 } else if ([orientation isEqualToString:ORIENT_HORIZONTAL]) {
                                      displaysize.size.width = isLargeWidth ? afterSize.width : afterSize.height;
                                      displaysize.size.height = isLargeWidth ? afterSize.height : afterSize.width;
                                  }
@@ -274,7 +285,7 @@
                              kkCloseButton.frame = afterBtnRect;
                              centerY = kkActionSheet.center.y;
                          }
-                         completion:^(BOOL finished) {animatingFlg = NO;}];
+                         completion:^(BOOL finished) { animatingFlg = NO; }];
     }
 }
 
