@@ -3,7 +3,7 @@ The library is like an extension of the tableview to ActionSheet.
 
 
 ## Demo
-in preparation
+![KkListActionSheet Sample Movie](KkListActionSheetExample/SampleMovie.gif)
 
 ## Requirement
 * iOS 6.0+
@@ -26,27 +26,69 @@ pod 'KkListActionSheet'
 KkListActionSheet uses a simple methodology. import header file and It defines a delegate(contains datasource)
 , its client implement. KkListActionSheetDelegate are like the combined UITableViewDelegate and UITableViewDatasource.
 
-<kbd>yourViewController.h</kbd>
+#### Show Position
 ```
-#import "KkListActionSheet"
-
-
-@interfase yourViewController : supperViewController <KkListActionSheetDelegate>
++ (instancetype) createInit:(UIViewController *) parent;
+```
+or
+```
++ (instancetype) createInit:(UIViewController *) parent style:(int) styleIdx;
 ```
 
-#### create instance
-```KkListActionSheet *varName = [KkListActionSheet createInit:uiViewController]```
+**style Pattern in portrait**
+* DEFAULT : about 60 percent in screen height
+* MIDDLE  : screen height half
+* LOW     : about 30 percent in screen height
+
+**style Pattern in Landscape**
+* DEFAULT : about 60 percent in screen height
+* MIDDLE & LOW : screen height half
 
 #### show KkListActionSheet
 ```[kkListActionSheet showHide]```
 
+#### hidden ListTitle
+```
+- (void) setHiddenTitle;
+```
+
 #### set ListTitle
-```[kkListActionSheet setTitle:@"title]```
+```
+- (void) setTitle:(NSString *)title;
+```
 or
-```[kkListActionSheet setAttrTitle:@"attributeTitle"]```
+```
+- (void) setAttrTitle:(NSAttributedString *)attrTitle;
+```
 
 ### example
-in preparation
+* import kkListActionSheet.h
+* implement KkListActionSheetDelegate and Method
+
+```
+#import "kkListActionSheet.h"
+
+@interface ExampleViewController ()
+
+<KkListActionSheetDelegate>
+
+@end
+
+@implement ExampleViewController {
+  kkListActionSheet *kkListActionSheet;
+}
+
+-(void) viewDidLoad {
+  kkListActionSheet = [KkListActionSheet createInit:uiViewController];
+  kkListActionSheet.delegate = self;
+}
+
+-(IBAction)buttonPushed:(UIButton *)sender {
+    [kkListActionSheet showHide];
+}
+
+@end
+```
 
 ## Licence
 [MIT](https://github.com/kuririnz/KkListActionSheet/blob/develop/LICENSE)

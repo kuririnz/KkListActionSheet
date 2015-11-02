@@ -14,6 +14,8 @@
 #define ORIENT_VERTICAL     @"PORTRAIT"
 #define ORIENT_HORIZONTAL   @"LANDSCAPE"
 
+int styleIndex;
+
 @interface KkListActionSheet (){
     IBOutlet UIView *kkActionSheetBackGround;
     IBOutlet UIView *kkActionSheet;
@@ -23,6 +25,7 @@
     CGRect displaysize;
     CGFloat centerY;
     BOOL animatingFlg;
+    CGSize screenStyle;
     
     NSArray *orientList;
     NSArray *supportOrientList;
@@ -38,6 +41,7 @@
     if(self) {
         // init process
         displaysize = [[UIScreen mainScreen] bounds];
+        [self setHighPosition];
         orientList = [NSArray arrayWithObjects:@"UIInterfaceOrientationPortrait",
                       @"UIInterfaceOrientationPortraitUpsideDown",
                       @"UIInterfaceOrientationLandscapeLeft",
@@ -59,6 +63,15 @@
 
 + (instancetype) createInit: (UIViewController *) parent {
     NSString *className = NSStringFromClass([self class]);
+    styleIndex = DEFAULT;
+    KkListActionSheet *initKkListActionSheet = [[[NSBundle mainBundle] loadNibNamed:className owner:nil options:0] firstObject];
+    [parent.view addSubview:initKkListActionSheet];
+    return initKkListActionSheet;
+}
+
++ (instancetype) createInit: (UIViewController *) parent style:(int) styleIdx{
+    NSString *className = NSStringFromClass([self class]);
+    styleIndex = styleIdx;
     KkListActionSheet *initKkListActionSheet = [[[NSBundle mainBundle] loadNibNamed:className owner:nil options:0] firstObject];
     [parent.view addSubview:initKkListActionSheet];
     return initKkListActionSheet;
@@ -72,7 +85,6 @@
     kkActionSheetBackGround.alpha = 0.0f;
     CGFloat largeOrientation = displaysize.size.width > displaysize.size.height? displaysize.size.width:displaysize.size.height;
 
-    
     // Setting BackGround Layout
     kkActionSheetBackGround.translatesAutoresizingMaskIntoConstraints = YES;
     CGRect kkActionSheetBgRect = kkActionSheetBackGround.frame;
@@ -83,9 +95,9 @@
     // Setting ListActionSheet Layout
     kkActionSheet.translatesAutoresizingMaskIntoConstraints = YES;
     CGRect kkActionSheetRect = kkActionSheet.frame;
-    kkActionSheetRect.origin = CGPointMake(0, displaysize.size.height / 3);
-    kkActionSheetRect.size.width = displaysize.size.width;
-    kkActionSheetRect.size.height = (displaysize.size.height * 2) / 3;
+    kkActionSheetRect.origin = CGPointMake(0, displaysize.size.height - screenStyle.height);
+    kkActionSheetRect.size.width = screenStyle.width;
+    kkActionSheetRect.size.height = screenStyle.height;
     kkActionSheet.frame = kkActionSheetRect;
     
     // Setting CloseButton Layout
@@ -99,24 +111,25 @@
     
     centerY = kkActionSheet.center.y;
     
-    // BackGround TapGesuture Event
+    // Set TapGesture Event
     UITapGestureRecognizer *backGroundTapGesture = [[UITapGestureRecognizer alloc]
                                           initWithTarget:self
                                           action:@selector(onTapGesture:)];
     [kkActionSheetBackGround addGestureRecognizer:backGroundTapGesture];
 
-    // Close Button PanGesture Event
-    UIPanGestureRecognizer *panGesture = [[UIPanGestureRecognizer alloc]
-                                          initWithTarget:self
-                                          action:@selector(onPanGesture:)];
     UITapGestureRecognizer *closeTapGesture = [[UITapGestureRecognizer alloc]
                                                     initWithTarget:self
                                                     action:@selector(onTapGesture:)];
-    [kkActionSheetBackGround addGestureRecognizer:backGroundTapGesture];
-
-    [kkCloseButton addGestureRecognizer:panGesture];
     [kkCloseButton addGestureRecognizer:closeTapGesture];
 
+    // Set PanGesture Event
+    if (styleIndex != LOW) {
+        UIPanGestureRecognizer *panGesture = [[UIPanGestureRecognizer alloc]
+                                              initWithTarget:self
+                                              action:@selector(onPanGesture:)];
+        [kkCloseButton addGestureRecognizer:panGesture];
+    }
+    
     // set device change notification center
     if (supportOrientList.count > 1) {
         [[NSNotificationCenter defaultCenter] addObserver:self
@@ -124,6 +137,38 @@
                                                      name:@"UIDeviceOrientationDidChangeNotification"
                                                    object:nil];
     }
+}
+
+- (void) setHighPosition {
+    screenStyle.width = displaysize.size.width;
+    if (displaysize.size.width > displaysize.size.height) {
+        if (DEFAULT == styleIndex) {
+            screenStyle.height = displaysize.size.height * 2 / 3;
+        } else {
+            screenStyle.height = displaysize.size.height / 2;
+        }
+    } else {
+        if (MIDDLE == styleIndex) {
+            screenStyle.height = displaysize.size.height / 2;
+        } else if (LOW == styleIndex) {
+            screenStyle.height = displaysize.size.height / 3;
+        } else {
+            screenStyle.height = displaysize.size.height * 2 / 3;
+        }
+    }
+}
+
+- (void) setHiddenTitle {
+    titleLabel.translatesAutoresizingMaskIntoConstraints = YES;
+    titleLabel.hidden = NO;
+    CGRect titleLabelRect = titleLabel.frame;
+    titleLabelRect.size.height = 0;
+    titleLabel.frame = titleLabelRect;
+}
+
+- (void) setHiddenScrollBar:(BOOL)value {
+    _kkTableView.showsVerticalScrollIndicator = value;
+    _kkTableView.showsHorizontalScrollIndicator = value;
 }
 
 - (void) setTitle:(NSString *)title {
@@ -150,7 +195,8 @@
             [self kkListActionSheetAnimation:moveRect.origin.y + location.y];
         }
     } else {
-        if (displaysize.size.height / 3 < moveRect.origin.y + location.y) {
+        CGFloat keyHeight = styleIndex == DEFAULT ? displaysize.size.height / 3 : screenStyle.height;
+        if (keyHeight < moveRect.origin.y + location.y) {
             moveRect.origin = CGPointMake(0, moveRect.origin.y + location.y);
             kkActionSheet.frame = moveRect;
         }
@@ -217,7 +263,7 @@
                         options:UIViewAnimationOptionCurveEaseInOut
                      animations:^{
                          CGRect tmp = kkActionSheet.frame;
-                         tmp.origin = CGPointMake(0, displaysize.size.height / 3);
+                         tmp.origin = CGPointMake(0, displaysize.size.height - screenStyle.height);
                          kkActionSheet.frame = tmp;
                      }
                      completion:^(BOOL finished) {animatingFlg = NO;}];
@@ -232,7 +278,7 @@
         if (kkActionSheetBackGround.alpha == 0.0f) {
             self.hidden = YES;
             CGRect tmpPosition = kkActionSheet.frame;
-            tmpPosition.origin = CGPointMake(0, displaysize.size.height / 3);
+            tmpPosition.origin = CGPointMake(0, displaysize.size.height - screenStyle.height);
             kkActionSheet.frame = tmpPosition;
         }
         animatingFlg = NO;
@@ -274,9 +320,10 @@
                                  }
                              }
                              
-                             afterSheetRect.origin = CGPointMake(0, displaysize.size.height / 3);
+                             [self setHighPosition];
+                             afterSheetRect.origin = CGPointMake(0, displaysize.size.height - screenStyle.height);
                              afterSheetRect.size.width = displaysize.size.width;
-                             afterSheetRect.size.height = (displaysize.size.height * 2) / 3;
+                             afterSheetRect.size.height = screenStyle.height;
                              
                              CGFloat tmpX = afterBtnRect.size.width - displaysize.size.width;
                              afterBtnRect.origin = CGPointMake(tmpX > 0 ? -(tmpX / 2) : 0, 0);
@@ -302,4 +349,13 @@
     [self.delegate kkTableView:tableView selectIndex:indexPath];
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
 }
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+    if ([self.delegate respondsToSelector:@selector(kkTableView:heightIndex:)]) {
+        return [self.delegate kkTableView:tableView heightIndex:indexPath];
+    }
+    UITableViewCell *cell = [self tableView:tableView cellForRowAtIndexPath:indexPath];
+    return cell.frame.size.height;
+}
+
 @end
